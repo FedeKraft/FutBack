@@ -16,7 +16,7 @@ public class AuthService {
         this.userRepository = userRepository;
     }
     public String register(RegisterUserDTO registerUserDTO) {
-        User user = new User(registerUserDTO.name, registerUserDTO.email, registerUserDTO.password);
+        User user = new User(registerUserDTO.name, registerUserDTO.email, registerUserDTO.password, registerUserDTO.localidad, registerUserDTO.playerAmount, registerUserDTO.numero);
         userRepository.save(user);
         return "User registered successfully";
     }

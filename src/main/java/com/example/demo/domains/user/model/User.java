@@ -15,19 +15,22 @@ public class User {
     private String email;
     @Column(name = "password", nullable = false)
     private String password;
+    @Column
+    private String localidad;
+    @Column
+    private String playerAmount;
+    @Column
+    private String numero;
 
-    public User(String name, String email, String password) {
+    public User(String name, String email, String password, String localidad, String playerAmount, String numero) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.localidad = localidad;
+        this.playerAmount = playerAmount;
+        this.numero = numero;
     }
 
-    public User(Long id, String name, String email, String password) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
 
     public Long getId() {
         return id;
@@ -61,4 +64,25 @@ public class User {
         this.password = password;
     }
 
+    public String getLocalidad() {
+        return localidad;
+    }
+    public void setLocalidad(String localidad) {
+        this.localidad = localidad;
+    }
+
+    public void setPlayerAmount(String playerAmount) {
+        this.playerAmount = playerAmount;
+    }
+    public String getPlayerAmount() {
+        return playerAmount;
+    }
+
+    public String getNumero() {
+        return numero;
+    }
+
+    public void setNumero(String numero) {
+        this.numero = numero;
+    }
 }
