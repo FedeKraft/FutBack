@@ -5,10 +5,7 @@ import com.example.demo.domains.auth.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
@@ -24,8 +21,8 @@ public class AuthController {
        return new ResponseEntity<>(authService.register(registerUserDTO), HttpStatus.CREATED);
     }
     @PostMapping("/auth/login")
-    public ResponseEntity<String> login() {
-        return new ResponseEntity<>("Login", HttpStatus.OK);
+    public ResponseEntity<String> login(@RequestBody RegisterUserDTO registerUserDTO) {
+        return new ResponseEntity<>(authService.login(registerUserDTO), HttpStatus.OK);
     }
 
 }

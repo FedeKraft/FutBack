@@ -1,6 +1,7 @@
 package com.example.demo.domains.auth.service;
 
 
+import com.example.demo.domains.auth.dto.LoginUserDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.user.model.User;
 import com.example.demo.domains.user.repository.UserRepository;
@@ -19,5 +20,15 @@ public class AuthService {
         User user = new User(registerUserDTO.name, registerUserDTO.email, registerUserDTO.password, registerUserDTO.localidad, registerUserDTO.playerAmount, registerUserDTO.numero);
         userRepository.save(user);
         return "User registered successfully";
+    }
+    public String login(RegisterUserDTO registerUserDTO) {
+        User user = userRepository.findByName(registerUserDTO.name);
+        if (user == null) {
+            return "User not found";
+        }
+        if (user.getPassword().equals(registerUserDTO.password)) {
+            return "Login successful";
+        }
+        return "Login failed";
     }
 }
