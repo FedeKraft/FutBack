@@ -1,5 +1,6 @@
 package com.example.demo.domains.auth.controller;
 
+import com.example.demo.domains.auth.dto.LoginUserDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,9 @@ public class AuthController {
     public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerUserDTO) {
        return new ResponseEntity<>(authService.register(registerUserDTO), HttpStatus.CREATED);
     }
-    @PostMapping("/auth/login")
-    public ResponseEntity<String> login(@RequestBody RegisterUserDTO registerUserDTO) {
-        return new ResponseEntity<>(authService.login(registerUserDTO), HttpStatus.OK);
-    }
 
+    @PostMapping("/auth/login")
+    public ResponseEntity<String> login(@RequestBody LoginUserDTO loginUserDTO) {
+        return new ResponseEntity<>(authService.login(loginUserDTO), HttpStatus.OK);
+    }
 }

@@ -1,6 +1,8 @@
 package com.example.demo.domains.user.model;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -8,6 +10,8 @@ public class User {
     @GeneratedValue(strategy =GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
+    @OneToMany(mappedBy="user")
+    private List<Token> tokens;
     @Column(name = "name", nullable = false)
 
     private String name;
@@ -31,6 +35,8 @@ public class User {
         this.numero = numero;
     }
 
+    public User() {
+    }
 
     public Long getId() {
         return id;

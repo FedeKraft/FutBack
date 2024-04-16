@@ -1,11 +1,11 @@
 package com.example.demo.domains.auth.dto;
 
 public class LoginUserDTO {
-    public String name;
+    public String email;
     public String password;
 
-    public LoginUserDTO(String name, String password) {
-        this.name = name;
+    public LoginUserDTO(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 }
