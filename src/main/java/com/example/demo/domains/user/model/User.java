@@ -10,8 +10,6 @@ public class User {
     @GeneratedValue(strategy =GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
-    @OneToMany(mappedBy="user")
-    private List<Token> tokens;
     @Column(name = "name", nullable = false)
 
     private String name;
@@ -20,19 +18,19 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
     @Column
-    private String localidad;
+    private String city;
     @Column
     private String playerAmount;
     @Column
-    private String numero;
+    private String number;
 
-    public User(String name, String email, String password, String localidad, String playerAmount, String numero) {
+    public User(String name, String email, String password, String city, String playerAmount, String number) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.localidad = localidad;
+        this.city = city;
         this.playerAmount = playerAmount;
-        this.numero = numero;
+        this.number = number;
     }
 
     public User() {
@@ -70,25 +68,27 @@ public class User {
         this.password = password;
     }
 
-    public String getLocalidad() {
-        return localidad;
+    public String getCity() {
+        return city;
     }
-    public void setLocalidad(String localidad) {
-        this.localidad = localidad;
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getPlayerAmount() {
+        return playerAmount;
     }
 
     public void setPlayerAmount(String playerAmount) {
         this.playerAmount = playerAmount;
     }
-    public String getPlayerAmount() {
-        return playerAmount;
+
+    public String getNumber() {
+        return number;
     }
 
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
+    public void setNumber(String number) {
+        this.number = number;
     }
 }

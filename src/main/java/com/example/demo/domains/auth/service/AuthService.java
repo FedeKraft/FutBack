@@ -1,11 +1,10 @@
 package com.example.demo.domains.auth.service;
 
-
 import com.example.demo.domains.auth.dto.LoginUserDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
-import com.example.demo.domains.user.model.Token;
+import com.example.demo.domains.auth.dto.TokenDTO;
+import com.example.demo.domains.auth.utils.JWTGen;
 import com.example.demo.domains.user.model.User;
-import com.example.demo.domains.user.repository.TokenRepository;
 import com.example.demo.domains.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +14,13 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
+    private final JWTGen jwtGen = new JWTGen();
     @Autowired
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
 
     @Autowired
-    public AuthService(UserRepository userRepository, TokenRepository tokenRepository) {
+    public AuthService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.tokenRepository = tokenRepository;
 
     }
     public String register(RegisterUserDTO registerUserDTO) {
@@ -30,32 +28,16 @@ public class AuthService {
         userRepository.save(user);
         return "User registered successfully";
     }
-    public String login(LoginUserDTO loginUserDTO) {
-        User user = userRepository.findByEmail(loginUserDTO.email);
+
+    public TokenDTO login(LoginUserDTO loginUserDTO) {
+     User user = userRepository.findByEmail(loginUserDTO.email);
         if (user == null) {
-            return "User not found";
+            throw new RuntimeException("User not found");
         }
-        if (user.getPassword().equals(loginUserDTO.password)) {
-            // create token (sessionsTable -:: userId, token, expiryDate
-            if (user.getPassword().equals(loginUserDTO.password)) {
-                //System.out.println("debug");
-                // create token
-                Token token = new Token();
-                //System.out.println("token created");
-                token.setToken(UUID.randomUUID().toString());
-                //System.out.println("token set");
-                token.setUser(user);
-                // set expiration date for 1 hour from now
-                Date expirationDate = new Date(System.currentTimeMillis() + 60 * 60 * 1000);
-                token.setExpirationDate(expirationDate);
-                // save token
-                //System.out.println(token.getToken());
-                tokenRepository.save(token);
-                // return token
-                return token.getToken();
-            }
-            return "Login successful";
+        if (!user.getPassword().equals(loginUserDTO.password)) {
+            throw new RuntimeException("Invalid password");
         }
-        return "Login failed";
+        return jwtGen.generateToken(user.getId(), "user");//cuando tenga admin se usa user.getRole() asi no son todos user
     }
+
 }
