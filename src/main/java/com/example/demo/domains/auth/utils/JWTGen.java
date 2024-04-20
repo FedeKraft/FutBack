@@ -6,12 +6,14 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class JWTGen {
     static final SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     public TokenDTO generateToken(Long id, String role) {

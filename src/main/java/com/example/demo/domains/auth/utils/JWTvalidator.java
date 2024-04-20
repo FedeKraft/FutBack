@@ -1,7 +1,9 @@
 package com.example.demo.domains.auth.utils;
 
 import io.jsonwebtoken.Claims;
+import org.springframework.stereotype.Component;
 
+@Component
 public class JWTvalidator {
     private final JWTGen jwtGen;
     public JWTvalidator(JWTGen jwtGen) {

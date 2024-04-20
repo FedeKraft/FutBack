@@ -4,9 +4,9 @@ public class RegisterUserDTO {
     public String name;
     public String password;
     public String email;
-    public String localidad;
+    public String city;
     public String playerAmount;
-    public String numero;
+    public String number;
 
 
 
@@ -14,8 +14,8 @@ public class RegisterUserDTO {
         this.name = name;
         this.password = password;
         this.email = email;
-        this.localidad = localidad;
+        this.city = localidad;
         this.playerAmount = playerAmount;
-        this.numero = numero;
+        this.number = numero;
     }
 }
