@@ -38,20 +38,13 @@ public class AuthService {
         return jwtGen.generateToken(user.getId(), "user");//cuando tenga admin se usa user.getRole() asi no son todos user
     }
 
-    public RegisterUserDTO updateProfile(Long userId, RegisterUserDTO registerUserDTO) {
+    public RegisterUserDTO getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setName(registerUserDTO.name);
-        user.setEmail(registerUserDTO.email);
-        user.setCity(registerUserDTO.city);
-        user.setPlayerAmount(registerUserDTO.playerAmount);
-        user.setNumber(registerUserDTO.number);
-
-        userRepository.save(user);
-
         return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber());
     }
+
 }
 
 

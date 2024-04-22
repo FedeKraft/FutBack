@@ -10,12 +10,13 @@ public class RegisterUserDTO {
 
 
 
-    public RegisterUserDTO(String name, String password, String email, String localidad, String playerAmount, String numero) {
+    public RegisterUserDTO(String name, String password, String email, String city, String playerAmount, String number) {
         this.name = name;
         this.password = password;
         this.email = email;
-        this.city = localidad;
+        this.city = city;
         this.playerAmount = playerAmount;
-        this.number = numero;
+        this.number = number;
     }
+
 }

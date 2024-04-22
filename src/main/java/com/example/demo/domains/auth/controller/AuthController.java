@@ -35,15 +35,17 @@ public class AuthController {
         return new ResponseEntity<>(authService.login(loginUserDTO), HttpStatus.OK);
     }
     @GetMapping("/auth/profile")
-    public ResponseEntity<TokenDTO> getUserInfo(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<RegisterUserDTO> getUserInfo(@RequestHeader("Authorization") String token) {
         try {
             Long userId = jwtValidator.getID(token);
-            TokenDTO user = new TokenDTO(userId.toString());
+            RegisterUserDTO user = authService.getUserProfile(userId);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
             // Token validation failed
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
+
 
 }
