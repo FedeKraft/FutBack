@@ -5,10 +5,14 @@ import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.dto.TokenDTO;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
+import com.example.demo.domains.user.model.Notification;
+import com.example.demo.domains.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin("*")
@@ -45,7 +49,19 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
-
-
+    @GetMapping("/auth/users")
+    public List<User> getAllUsers() {
+        return authService.getAllUsers();
+    }
+    @GetMapping("/api/notifications")
+    public List<Notification> getNotifications(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = jwtValidator.getID(token);
+            return authService.getNotificationsByUserId(userId);
+        } catch (Exception e) {
+            // Token validation failed
+            throw new RuntimeException("Unauthorized");
+        }
+    }
 
 }
