@@ -22,10 +22,9 @@ public class AuthController {
 
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, JWTvalidator jwtValidator) {
         this.authService = authService;
-
-
+        this.jwtValidator = jwtValidator;
     }
     @PostMapping("/auth/register")
     public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerUserDTO) {
@@ -107,6 +106,18 @@ public class AuthController {
             authService.rejectMatch(matchId);
             return new ResponseEntity<>("Match rechazado", HttpStatus.OK);
         } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PutMapping("/auth/EditProfile")
+    public ResponseEntity<RegisterUserDTO> editUserProfile(@RequestHeader("Authorization") String token, @RequestBody RegisterUserDTO registerUserDTO) {
+        try {
+            Long userId = jwtValidator.getID(token);
+            RegisterUserDTO updatedUser = authService.editUserProfile(userId, registerUserDTO);
+            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        } catch (Exception e) {
+            // Token validation failed
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }

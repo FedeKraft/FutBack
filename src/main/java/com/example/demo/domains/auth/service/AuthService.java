@@ -75,7 +75,7 @@ public class AuthService {
         return notifications;
     }
 
-    public Match createMatch(Long user1Id, Long user2Id) {
+    public void createMatch(Long user1Id, Long user2Id) {
         User user1 = userRepository.findById(user1Id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         User user2 = userRepository.findById(user2Id)
@@ -92,21 +92,37 @@ public class AuthService {
         Notification savedNotification = notificationRepository.save(notification);
         match.setNotification(savedNotification);
         match.setStatus(MatchStatus.PENDING);
-        return matchRepository.save(match);
+        matchRepository.save(match);
     }
 
-    public Match acceptMatch(Long matchId) {
+    public void acceptMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         match.setStatus(MatchStatus.ACCEPTED);
-        return matchRepository.save(match);
+        matchRepository.save(match);
     }
 
-    public Match rejectMatch(Long matchId) {
+    public void rejectMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
         match.setStatus(MatchStatus.REJECTED);
-        return matchRepository.save(match);
+        matchRepository.save(match);
+    }
+
+    public RegisterUserDTO editUserProfile(Long userId, RegisterUserDTO registerUserDTO) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setName(registerUserDTO.name);
+        user.setEmail(registerUserDTO.email);
+        user.setPassword(registerUserDTO.password);
+        user.setCity(registerUserDTO.city);
+        user.setPlayerAmount(registerUserDTO.playerAmount);
+        user.setNumber(registerUserDTO.number);
+
+        userRepository.save(user);
+
+        return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber());
     }
 }
 
