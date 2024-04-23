@@ -1,6 +1,7 @@
 package com.example.demo.domains.auth.controller;
 
 import com.example.demo.domains.auth.dto.LoginUserDTO;
+import com.example.demo.domains.auth.dto.MatchDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.dto.TokenDTO;
 import com.example.demo.domains.auth.service.AuthService;
@@ -71,5 +72,24 @@ public class AuthController {
             throw new RuntimeException("Unauthorized");
         }
     }
-
+    @GetMapping("/auth/users/{id}")
+    public ResponseEntity<RegisterUserDTO> getUserById(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            RegisterUserDTO user = authService.getUserProfile(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+    @PostMapping("/auth/match")
+    public ResponseEntity<String> createMatch(@RequestBody MatchDTO matchDTO, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.createMatch(matchDTO.user1Id, matchDTO.user2Id);
+            return new ResponseEntity<>("Match iniciado", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
 }
