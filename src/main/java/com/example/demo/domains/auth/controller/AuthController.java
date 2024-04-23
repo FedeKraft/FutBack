@@ -26,6 +26,7 @@ public class AuthController {
         this.authService = authService;
         this.jwtValidator = jwtValidator;
     }
+
     @PostMapping("/auth/register")
     public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerUserDTO) {
        return new ResponseEntity<>(authService.register(registerUserDTO), HttpStatus.CREATED);
@@ -35,6 +36,7 @@ public class AuthController {
     public ResponseEntity<TokenDTO> login(@RequestBody LoginUserDTO loginUserDTO) {
         return new ResponseEntity<>(authService.login(loginUserDTO), HttpStatus.OK);
     }
+
     @GetMapping("/auth/profile")
     public ResponseEntity<RegisterUserDTO> getUserInfo(@RequestHeader("Authorization") String token) {
         try {
@@ -46,6 +48,7 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
     @GetMapping("/auth/users")
     public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") String token) {
         try {
@@ -68,6 +71,7 @@ public class AuthController {
             throw new RuntimeException("Unauthorized");
         }
     }
+
     @GetMapping("/auth/users/{id}")
     public ResponseEntity<RegisterUserDTO> getUserById(@PathVariable Long id, @RequestHeader("Authorization") String token) {
         try {
@@ -78,6 +82,7 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
     @PostMapping("/auth/match")
     public ResponseEntity<String> createMatch(@RequestBody MatchDTO matchDTO, @RequestHeader("Authorization") String token) {
         try {
@@ -88,6 +93,7 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
     @PostMapping("/api/matches/{matchId}/accept")
     public ResponseEntity<String> acceptMatch(@PathVariable Long matchId, @RequestHeader("Authorization") String token) {
         try {
