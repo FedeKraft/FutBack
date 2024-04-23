@@ -56,7 +56,9 @@ public class AuthService {
     public List<User> getAllUsers(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return userRepository.findByCity(user.getCity());
+        List<User> users = userRepository.findByCity(user.getCity());
+        users.removeIf(u -> u.getId().equals(userId)); // Remove the logged-in user from the list
+        return users;
     }
 
     public List<Notification> getNotificationsByUserId(Long userId) {
