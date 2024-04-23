@@ -5,6 +5,7 @@ import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.dto.TokenDTO;
 import com.example.demo.domains.auth.utils.JWTGen;
 import com.example.demo.domains.user.model.Match;
+import com.example.demo.domains.user.model.MatchStatus;
 import com.example.demo.domains.user.model.Notification;
 import com.example.demo.domains.user.model.User;
 import com.example.demo.domains.user.repository.MatchRepository;
@@ -73,36 +74,43 @@ public class AuthService {
         }
         return notifications;
     }
-    // En AuthService.java
+
     public Match createMatch(Long user1Id, Long user2Id) {
         User user1 = userRepository.findById(user1Id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         User user2 = userRepository.findById(user2Id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         Match match = new Match();
-        match.setToUser(user1);
-        match.setFromUser(user2);
-
-        // Create a notification for user1 and associate it with the match
-        Notification notification1 = new Notification();
-        notification1.setFromUser(user1); // Set the fromUser
-        notification1.setToUser(user2); // Set the toUser
-        notification1.setMessage("Has iniciado un match con el usuario " + user2.getName());
-        Notification savedNotification1 = notificationRepository.save(notification1);
-        match.setNotification(savedNotification1);
+        match.setFromUser(user1);
+        match.setToUser(user2);
 
         // Create a notification for user2 and associate it with the match
-        Notification notification2 = new Notification();
-        notification2.setFromUser(user2); // Set the fromUser
-        notification2.setToUser(user1); // Set the toUser
-        notification2.setMessage("El usuario " + user1.getName() + " ha iniciado un match contigo");
-        Notification savedNotification2 = notificationRepository.save(notification2);
-        match.setNotification(savedNotification2);
-
+        Notification notification = new Notification();
+        notification.setFromUser(user1); // Set the fromUser
+        notification.setToUser(user2); // Set the toUser
+        notification.setMessage("El usuario " + user1.getName() + " ha iniciado un match contigo");
+        Notification savedNotification = notificationRepository.save(notification);
+        match.setNotification(savedNotification);
+        match.setStatus(MatchStatus.PENDING);
         return matchRepository.save(match);
     }
 
+    public Match acceptMatch(Long matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        match.setStatus(MatchStatus.ACCEPTED);
+        return matchRepository.save(match);
+    }
+
+    public Match rejectMatch(Long matchId) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        match.setStatus(MatchStatus.REJECTED);
+        return matchRepository.save(match);
+    }
 }
+
+
 
 
 

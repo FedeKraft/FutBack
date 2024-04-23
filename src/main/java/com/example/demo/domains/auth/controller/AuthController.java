@@ -1,9 +1,6 @@
 package com.example.demo.domains.auth.controller;
 
-import com.example.demo.domains.auth.dto.LoginUserDTO;
-import com.example.demo.domains.auth.dto.MatchDTO;
-import com.example.demo.domains.auth.dto.RegisterUserDTO;
-import com.example.demo.domains.auth.dto.TokenDTO;
+import com.example.demo.domains.auth.dto.*;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
 import com.example.demo.domains.user.model.Notification;
@@ -88,6 +85,27 @@ public class AuthController {
             jwtValidator.getID(token);
             authService.createMatch(matchDTO.user1Id, matchDTO.user2Id);
             return new ResponseEntity<>("Match iniciado", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+    @PostMapping("/api/matches/{matchId}/accept")
+    public ResponseEntity<String> acceptMatch(@PathVariable Long matchId, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.acceptMatch(matchId);
+            return new ResponseEntity<>("Match aceptado", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/api/matches/{matchId}/reject")
+    public ResponseEntity<String> rejectMatch(@PathVariable Long matchId, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.rejectMatch(matchId);
+            return new ResponseEntity<>("Match rechazado", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

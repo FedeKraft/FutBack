@@ -19,6 +19,19 @@ public class Match {
     @ManyToOne
     private Notification notification;
 
+    @Enumerated(EnumType.STRING)
+    private MatchStatus status;
+
+
+
+    public MatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MatchStatus status) {
+        this.status = status;
+    }
+
     public Long getId() {
         return id;
     }
