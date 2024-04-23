@@ -59,9 +59,14 @@ public class AuthService {
     public List<User> getAllUsers(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<User> users = userRepository.findByCity(user.getCity());
-        users.removeIf(u -> u.getId().equals(userId)); // Remove the logged-in user from the list
-        return users;
+        List<User> users = userRepository.findByPlayerAmount(user.getPlayerAmount()); // Get all users with the same playerAmount
+        users.removeIf(u -> !u.getCity().equals(user.getCity()) || u.getId().equals(userId)); // Remove the users not in the same city and the logged-in user from the list
+        if (!users.isEmpty()) return users;
+        else {
+            List<User> usersNearBy = userRepository.findByCity(user.getCity()); // Get all users in the same city
+            usersNearBy.removeIf(u -> u.getId().equals(userId)); // Remove the logged-in user from the list
+            return usersNearBy;
+        }
     }
 
     public List<Notification> getNotificationsByUserId(Long userId) {

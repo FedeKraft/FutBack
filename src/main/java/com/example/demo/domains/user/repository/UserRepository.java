@@ -10,4 +10,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByCity(String city);
 
 
+    List<User> findByPlayerAmount(String playerAmount);
 }
