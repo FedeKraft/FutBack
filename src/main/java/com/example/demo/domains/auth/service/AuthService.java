@@ -52,9 +52,13 @@ public class AuthService {
 
         return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber());
     }
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+
+    public List<User> getAllUsers(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findByCity(user.getCity());
     }
+
     public List<Notification> getNotificationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));

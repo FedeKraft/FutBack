@@ -50,9 +50,17 @@ public class AuthController {
         }
     }
     @GetMapping("/auth/users")
-    public List<User> getAllUsers() {
-        return authService.getAllUsers();
+    public ResponseEntity<List<User>> getAllUsers(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = jwtValidator.getID(token);
+            List<User> users = authService.getAllUsers(userId);
+            return new ResponseEntity<>(users, HttpStatus.OK);
+        } catch (Exception e) {
+            // Token validation failed
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
     }
+
     @GetMapping("/api/notifications")
     public List<Notification> getNotifications(@RequestHeader("Authorization") String token) {
         try {
