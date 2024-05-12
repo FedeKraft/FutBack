@@ -72,12 +72,7 @@ public class AuthService {
     public List<Notification> getNotificationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<Match> matches = matchRepository.findByToUser(user);
-        List<Notification> notifications = new ArrayList<>();
-        for (Match match : matches) {
-            notifications.add(match.getNotification());
-        }
-        return notifications;
+        return notificationRepository.findByToUser(user);
     }
 
     public void createMatch(Long user1Id, Long user2Id) {
@@ -85,26 +80,41 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         User user2 = userRepository.findById(user2Id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Create the match and set its status to PENDING
         Match match = new Match();
         match.setFromUser(user1);
         match.setToUser(user2);
+        match.setStatus(MatchStatus.PENDING);
+        Match savedMatch = matchRepository.save(match); // Save the match and generate its ID
 
         // Create a notification for user2 and associate it with the match
         Notification notification = new Notification();
-        notification.setFromUser(user1); // Set the fromUser
-        notification.setToUser(user2); // Set the toUser
+        notification.setFromUser(user1);
+        notification.setToUser(user2);
         notification.setMessage("El usuario " + user1.getName() + " ha iniciado un match contigo");
-        Notification savedNotification = notificationRepository.save(notification);
-        match.setNotification(savedNotification);
-        match.setStatus(MatchStatus.PENDING);
-        matchRepository.save(match);
+        notification.setMatch(savedMatch); // Set the saved match
+        notificationRepository.save(notification); // Save the notification
     }
 
     public void acceptMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
-        match.setStatus(MatchStatus.ACCEPTED);
-        matchRepository.save(match);
+
+        // Create a new match with the status ACCEPTED
+        Match newMatch = new Match();
+        newMatch.setFromUser(match.getFromUser());
+        newMatch.setToUser(match.getToUser());
+        newMatch.setStatus(MatchStatus.ACCEPTED);
+        matchRepository.save(newMatch); // Save the new match
+
+        // Create a notification for the user who requested the match
+        Notification notification = new Notification();
+        notification.setFromUser(newMatch.getToUser()); // Set the fromUser
+        notification.setToUser(newMatch.getFromUser()); // Set the toUser
+        notification.setMessage("El usuario " + newMatch.getToUser().getName() + " ha aceptado tu match");
+        notification.setMatch(newMatch); // Set the match
+        notificationRepository.save(notification); // Save the notification
     }
 
     public void rejectMatch(Long matchId) {

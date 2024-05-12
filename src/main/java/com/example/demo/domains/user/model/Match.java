@@ -16,9 +16,6 @@ public class Match {
     @ManyToOne
     private User toUser;
 
-    @ManyToOne
-    private Notification notification;
-
     @Enumerated(EnumType.STRING)
     private MatchStatus status;
 
@@ -54,13 +51,5 @@ public class Match {
 
     public void setToUser(User toUser) {
         this.toUser = toUser;
-    }
-
-    public Notification getNotification() {
-        return notification;
-    }
-
-    public void setNotification(Notification notification) {
-        this.notification = notification;
     }
 }

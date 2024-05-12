@@ -18,6 +18,9 @@ public class Notification {
     @ManyToOne
     private User toUser;
 
+    @ManyToOne
+    private Match match;
+
     public Long getId() {
         return id;
     }
@@ -49,4 +52,8 @@ public class Notification {
     public void setToUser(User toUser) {
         this.toUser = toUser;
     }
+
+    public Match getMatch() { return match; }
+
+    public void setMatch(Match match) { this.match = match; }
 }

@@ -3,6 +3,7 @@ package com.example.demo.domains.auth.controller;
 import com.example.demo.domains.auth.dto.*;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
+import com.example.demo.domains.user.model.MatchStatus;
 import com.example.demo.domains.user.model.Notification;
 import com.example.demo.domains.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -44,7 +46,6 @@ public class AuthController {
             RegisterUserDTO user = authService.getUserProfile(userId);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception e) {
-            // Token validation failed
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
@@ -56,7 +57,6 @@ public class AuthController {
             List<User> users = authService.getAllUsers(userId);
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
-            // Token validation failed
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
@@ -67,7 +67,6 @@ public class AuthController {
             Long userId = jwtValidator.getID(token);
             return authService.getNotificationsByUserId(userId);
         } catch (Exception e) {
-            // Token validation failed
             throw new RuntimeException("Unauthorized");
         }
     }
@@ -94,9 +93,10 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/api/matches/{matchId}/accept")
-    public ResponseEntity<String> acceptMatch(@PathVariable Long matchId, @RequestHeader("Authorization") String token) {
+    @PostMapping("/api/matches/accept")
+    public ResponseEntity<String> acceptMatch(@RequestBody Map<String, Long> body, @RequestHeader("Authorization") String token) {
         try {
+            Long matchId = body.get("matchId");
             jwtValidator.getID(token);
             authService.acceptMatch(matchId);
             return new ResponseEntity<>("Match aceptado", HttpStatus.OK);
@@ -123,7 +123,6 @@ public class AuthController {
             RegisterUserDTO updatedUser = authService.editUserProfile(userId, registerUserDTO);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
         } catch (Exception e) {
-            // Token validation failed
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
