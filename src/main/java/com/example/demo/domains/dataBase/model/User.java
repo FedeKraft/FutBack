@@ -1,17 +1,17 @@
-package com.example.demo.domains.user.model;
+package com.example.demo.domains.dataBase.model;
+
 import jakarta.persistence.*;
 
-import java.util.List;
 
 @Entity
 @Table(name = "users")
 public class User {
+
     @Id
     @GeneratedValue(strategy =GenerationType.AUTO)
     @Column(name = "id", nullable = false)
     private Long id;
     @Column(name = "name", nullable = false)
-
     private String name;
     @Column(name = "email", nullable = false)
     private String email;
@@ -23,6 +23,7 @@ public class User {
     private String playerAmount;
     @Column
     private String number;
+
 
     public User(String name, String email, String password, String city, String playerAmount, String number) {
         this.name = name;

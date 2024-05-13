@@ -1,4 +1,4 @@
-package com.example.demo.domains.user.model;
+package com.example.demo.domains.dataBase.model;
 
 public enum MatchStatus {
         PENDING,

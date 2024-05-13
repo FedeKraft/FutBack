@@ -3,9 +3,8 @@ package com.example.demo.domains.auth.controller;
 import com.example.demo.domains.auth.dto.*;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
-import com.example.demo.domains.user.model.MatchStatus;
-import com.example.demo.domains.user.model.Notification;
-import com.example.demo.domains.user.model.User;
+import com.example.demo.domains.dataBase.model.Notification;
+import com.example.demo.domains.dataBase.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,9 +104,10 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/api/matches/{matchId}/reject")
-    public ResponseEntity<String> rejectMatch(@PathVariable Long matchId, @RequestHeader("Authorization") String token) {
+    @PostMapping("/api/matches/reject")
+    public ResponseEntity<String> rejectMatch(@RequestBody Map<String, Long> body, @RequestHeader("Authorization") String token) {
         try {
+            Long matchId = body.get("matchId");
             jwtValidator.getID(token);
             authService.rejectMatch(matchId);
             return new ResponseEntity<>("Match rechazado", HttpStatus.OK);

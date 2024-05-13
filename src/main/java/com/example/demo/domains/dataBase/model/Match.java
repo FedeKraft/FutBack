@@ -1,4 +1,4 @@
-package com.example.demo.domains.user.model;
+package com.example.demo.domains.dataBase.model;
 
 import jakarta.persistence.*;
 
@@ -9,16 +9,12 @@ public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     @ManyToOne
     private User fromUser;
-
     @ManyToOne
     private User toUser;
-
     @Enumerated(EnumType.STRING)
     private MatchStatus status;
-
 
 
     public MatchStatus getStatus() {

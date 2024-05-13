@@ -1,4 +1,4 @@
-package com.example.demo.domains.user.model;
+package com.example.demo.domains.dataBase.model;
 
 import jakarta.persistence.*;
 
@@ -9,17 +9,14 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
     private String message;
-
     @ManyToOne
     private User fromUser;
-
     @ManyToOne
     private User toUser;
-
     @ManyToOne
     private Match match;
+
 
     public Long getId() {
         return id;

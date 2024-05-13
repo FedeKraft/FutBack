@@ -4,18 +4,17 @@ import com.example.demo.domains.auth.dto.LoginUserDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.dto.TokenDTO;
 import com.example.demo.domains.auth.utils.JWTGen;
-import com.example.demo.domains.user.model.Match;
-import com.example.demo.domains.user.model.MatchStatus;
-import com.example.demo.domains.user.model.Notification;
-import com.example.demo.domains.user.model.User;
-import com.example.demo.domains.user.repository.MatchRepository;
-import com.example.demo.domains.user.repository.NotificationRepository;
-import com.example.demo.domains.user.repository.UserRepository;
+import com.example.demo.domains.dataBase.model.Match;
+import com.example.demo.domains.dataBase.model.MatchStatus;
+import com.example.demo.domains.dataBase.model.Notification;
+import com.example.demo.domains.dataBase.model.User;
+import com.example.demo.domains.dataBase.repository.MatchRepository;
+import com.example.demo.domains.dataBase.repository.NotificationRepository;
+import com.example.demo.domains.dataBase.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -81,6 +80,12 @@ public class AuthService {
         User user2 = userRepository.findById(user2Id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Check if there is already a pending notification
+        Optional<Notification> existingNotification = notificationRepository.findByFromUserAndToUserAndMatch_Status(user1, user2, MatchStatus.PENDING);
+        if (existingNotification.isPresent()) {
+            throw new RuntimeException("A match request is already pending");
+        }
+
         // Create the match and set its status to PENDING
         Match match = new Match();
         match.setFromUser(user1);
@@ -101,27 +106,32 @@ public class AuthService {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
 
-        // Create a new match with the status ACCEPTED
-        Match newMatch = new Match();
-        newMatch.setFromUser(match.getFromUser());
-        newMatch.setToUser(match.getToUser());
-        newMatch.setStatus(MatchStatus.ACCEPTED);
-        matchRepository.save(newMatch); // Save the new match
+        // Set match status ACCEPTED
+        match.setStatus(MatchStatus.ACCEPTED);
 
         // Create a notification for the user who requested the match
         Notification notification = new Notification();
-        notification.setFromUser(newMatch.getToUser()); // Set the fromUser
-        notification.setToUser(newMatch.getFromUser()); // Set the toUser
-        notification.setMessage("El usuario " + newMatch.getToUser().getName() + " ha aceptado tu match");
-        notification.setMatch(newMatch); // Set the match
+        notification.setFromUser(match.getToUser());
+        notification.setToUser(match.getFromUser());
+        notification.setMessage(match.getToUser().getName() + " ha aceptado tu match");
+        notification.setMatch(match);
         notificationRepository.save(notification); // Save the notification
     }
 
     public void rejectMatch(Long matchId) {
         Match match = matchRepository.findById(matchId)
                 .orElseThrow(() -> new RuntimeException("Match not found"));
+
+        // Set match status REJECTED
         match.setStatus(MatchStatus.REJECTED);
-        matchRepository.save(match);
+
+        // Create a notification for the user who requested the match
+        Notification notification = new Notification();
+        notification.setFromUser(match.getToUser());
+        notification.setToUser(match.getFromUser());
+        notification.setMessage(match.getToUser().getName() + " ha rechazado tu match");
+        notification.setMatch(match);
+        notificationRepository.save(notification); // Save the notification
     }
 
     public RegisterUserDTO editUserProfile(Long userId, RegisterUserDTO registerUserDTO) {
