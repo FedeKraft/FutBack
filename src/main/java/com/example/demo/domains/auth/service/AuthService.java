@@ -4,10 +4,7 @@ import com.example.demo.domains.auth.dto.LoginUserDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.dto.TokenDTO;
 import com.example.demo.domains.auth.utils.JWTGen;
-import com.example.demo.domains.dataBase.model.Match;
-import com.example.demo.domains.dataBase.model.MatchStatus;
-import com.example.demo.domains.dataBase.model.Notification;
-import com.example.demo.domains.dataBase.model.User;
+import com.example.demo.domains.dataBase.model.*;
 import com.example.demo.domains.dataBase.repository.MatchRepository;
 import com.example.demo.domains.dataBase.repository.NotificationRepository;
 import com.example.demo.domains.dataBase.repository.UserRepository;
@@ -58,11 +55,11 @@ public class AuthService {
     public List<User> getAllUsers(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<User> users = userRepository.findByPlayerAmount(user.getPlayerAmount()); // Get all users with the same playerAmount
+        List<User> users = userRepository.findByPlayerAmountAndStatus(user.getPlayerAmount(), UserStatus.ACTIVE); // Get all users with the same playerAmount that are active
         users.removeIf(u -> !u.getCity().equals(user.getCity()) || u.getId().equals(userId)); // Remove the users not in the same city and the logged-in user from the list
         if (!users.isEmpty()) return users;
         else {
-            List<User> usersNearBy = userRepository.findByCity(user.getCity()); // Get all users in the same city
+            List<User> usersNearBy = userRepository.findByCityAndStatus(user.getCity(), UserStatus.ACTIVE); // Get all users in the same city that are active
             usersNearBy.removeIf(u -> u.getId().equals(userId)); // Remove the logged-in user from the list
             return usersNearBy;
         }
@@ -148,6 +145,19 @@ public class AuthService {
         userRepository.save(user);
 
         return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber());
+    }
+
+    public void toggleUserStatus(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getStatus() == UserStatus.ACTIVE) {
+            user.setStatus(UserStatus.INACTIVE);
+        } else {
+            user.setStatus(UserStatus.ACTIVE);
+        }
+
+        userRepository.save(user);
     }
 }
 

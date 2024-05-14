@@ -126,4 +126,15 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
+    @PutMapping("/auth/users/toggle-status")
+    public ResponseEntity<String> toggleUserStatus(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = jwtValidator.getID(token);
+            authService.toggleUserStatus(userId);
+            return new ResponseEntity<>("User status toggled", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
 }

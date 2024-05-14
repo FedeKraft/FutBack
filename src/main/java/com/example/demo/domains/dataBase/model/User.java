@@ -23,6 +23,8 @@ public class User {
     private String playerAmount;
     @Column
     private String number;
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
 
 
     public User(String name, String email, String password, String city, String playerAmount, String number) {
@@ -32,6 +34,7 @@ public class User {
         this.city = city;
         this.playerAmount = playerAmount;
         this.number = number;
+        this.status = UserStatus.ACTIVE;
     }
 
     public User() {
@@ -92,4 +95,8 @@ public class User {
     public void setNumber(String number) {
         this.number = number;
     }
+
+    public UserStatus getStatus() { return status; }
+
+    public void setStatus(UserStatus status) { this.status = status; }
 }
