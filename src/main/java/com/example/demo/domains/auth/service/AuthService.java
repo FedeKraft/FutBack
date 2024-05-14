@@ -113,6 +113,21 @@ public class AuthService {
         notification.setMessage(match.getToUser().getName() + " ha aceptado tu match");
         notification.setMatch(match);
         notificationRepository.save(notification); // Save the notification
+
+        // Create a notification for both users to inform the match result
+        Notification notification1 = new Notification();
+        notification1.setFromUser(match.getFromUser());
+        notification1.setToUser(match.getToUser());
+        notification1.setMessage("Informar el resultado del partido contra " + notification1.getFromUser().getName());
+        notification1.setMatch(match);
+        notificationRepository.save(notification1); // Save the notification
+
+        Notification notification2 = new Notification();
+        notification2.setFromUser(match.getToUser());
+        notification2.setToUser(match.getFromUser());
+        notification2.setMessage("Informar el resultado del partido contra " + notification2.getFromUser().getName());
+        notification2.setMatch(match);
+        notificationRepository.save(notification2); // Save the notification
     }
 
     public void rejectMatch(Long matchId) {
