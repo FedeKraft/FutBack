@@ -3,6 +3,7 @@ package com.example.demo.domains.auth.controller;
 import com.example.demo.domains.auth.dto.*;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
+import com.example.demo.domains.dataBase.model.Match;
 import com.example.demo.domains.dataBase.model.Notification;
 import com.example.demo.domains.dataBase.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,6 +157,16 @@ public class AuthController {
             jwtValidator.getID(token);
             authService.cancelMatch(notificationId);
             return new ResponseEntity<>("Match cancelado", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+    @GetMapping("/auth/match-history")
+    public ResponseEntity<List<Match>> getMatchHistory(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = jwtValidator.getID(token);
+            List<Match> matchHistory = authService.getMatchHistory(userId);
+            return new ResponseEntity<>(matchHistory, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

@@ -12,6 +12,8 @@ import com.example.demo.domains.dataBase.repository.NotificationRepository;
 import com.example.demo.domains.dataBase.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -214,6 +216,18 @@ public class AuthService {
 
         notification.setResponded(true);
         notificationRepository.save(notification);
+    }
+
+    public List<Match> getMatchHistory(Long userId) {
+        List<Match> matches = matchRepository.findByFromUserId(userId);
+        matches.addAll(matchRepository.findByToUserId(userId));
+        List<Match> acceptedMatches = new ArrayList<>();
+        for(Match match: matches){
+            if(match.getStatus()== MatchStatus.ACCEPTED && match.getFromUserForm()!=null && match.getToUserForm()!=null){
+                acceptedMatches.add(match);
+            }
+        }
+        return acceptedMatches;
     }
 }
 
