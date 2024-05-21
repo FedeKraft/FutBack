@@ -187,8 +187,10 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         User currentUser = notification.getToUser();
         Match match = notification.getMatch();
+        User user1 = match.getFromUser();
+        User user2 = match.getToUser();
 
-        if (currentUser == match.getFromUser() && match.getFromUserForm() == null) {
+        if (currentUser == user1 && match.getFromUserForm() == null) {
             Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.punctuality, formDTO.fairPlay, formDTO.comment);
             form.setUser(currentUser);
             formRepository.save(form);
@@ -197,7 +199,7 @@ public class AuthService {
             notification.setResponded(true);
             notificationRepository.save(notification);
         }
-        if (currentUser == match.getToUser() && match.getToUserForm() == null) {
+        if (currentUser == user2 && match.getToUserForm() == null) {
             Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.punctuality, formDTO.fairPlay, formDTO.comment);
             form.setUser(currentUser);
             formRepository.save(form);
@@ -205,6 +207,36 @@ public class AuthService {
             matchRepository.save(match);
             notification.setResponded(true);
             notificationRepository.save(notification);
+        }
+
+        Form form1 = match.getFromUserForm();
+        Form form2 = match.getToUserForm();
+
+        if (form1 != null && form2 != null) {
+            if (form1.getGoalsInFavor() == form1.getGoalsAgainst() && form2.getGoalsAgainst() == form2.getGoalsInFavor()) {
+                int newElo1 = user1.updateElo(user2.getElo(), 0.5);
+                int newElo2 = user2.updateElo(user1.getElo(), 0.5);
+                user1.setElo(newElo1);
+                user2.setElo(newElo2);
+                userRepository.save(user1);
+                userRepository.save(user2);
+            }
+            if (form1.getGoalsInFavor() > form1.getGoalsAgainst() && form2.getGoalsInFavor() < form2.getGoalsAgainst()) {
+                int newElo1 = user1.updateElo(user2.getElo(), 1);
+                int newElo2 = user2.updateElo(user1.getElo(), 0);
+                user1.setElo(newElo1);
+                user2.setElo(newElo2);
+                userRepository.save(user1);
+                userRepository.save(user2);
+            }
+            if (form1.getGoalsInFavor() < form1.getGoalsAgainst() && form2.getGoalsInFavor() > form2.getGoalsAgainst()) {
+                int newElo1 = user1.updateElo(user2.getElo(), 0);
+                int newElo2 = user2.updateElo(user1.getElo(), 1);
+                user1.setElo(newElo1);
+                user2.setElo(newElo2);
+                userRepository.save(user1);
+                userRepository.save(user2);
+            }
         }
     }
 
@@ -214,6 +246,10 @@ public class AuthService {
 
         notification.setResponded(true);
         notificationRepository.save(notification);
+    }
+
+    public List<User> getRanking() {
+        return userRepository.findAllByOrderByEloDesc();
     }
 }
 
