@@ -9,7 +9,10 @@ public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(name = "message", nullable = false)
     private String message;
+    @Column(name = "responded", nullable = false)
+    private boolean responded;
     @ManyToOne
     private User fromUser;
     @ManyToOne
@@ -32,6 +35,14 @@ public class Notification {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public boolean isResponded() {
+        return responded;
+    }
+
+    public void setResponded(boolean responded) {
+        this.responded = responded;
     }
 
     public User getFromUser() {

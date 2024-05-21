@@ -1,10 +1,12 @@
 package com.example.demo.domains.auth.service;
 
+import com.example.demo.domains.auth.dto.FormDTO;
 import com.example.demo.domains.auth.dto.LoginUserDTO;
 import com.example.demo.domains.auth.dto.RegisterUserDTO;
 import com.example.demo.domains.auth.dto.TokenDTO;
 import com.example.demo.domains.auth.utils.JWTGen;
 import com.example.demo.domains.dataBase.model.*;
+import com.example.demo.domains.dataBase.repository.FormRepository;
 import com.example.demo.domains.dataBase.repository.MatchRepository;
 import com.example.demo.domains.dataBase.repository.NotificationRepository;
 import com.example.demo.domains.dataBase.repository.UserRepository;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+
 @Service
 public class AuthService {
     private final JWTGen jwtGen = new JWTGen();
@@ -20,13 +23,15 @@ public class AuthService {
     private final UserRepository userRepository;
     private final MatchRepository matchRepository;
     private final NotificationRepository notificationRepository;
+    private final FormRepository formRepository;
 
 
     @Autowired
-    public AuthService(UserRepository userRepository, MatchRepository matchRepository, NotificationRepository notificationRepository) {
+    public AuthService(UserRepository userRepository, MatchRepository matchRepository, NotificationRepository notificationRepository, FormRepository formRepository) {
         this.userRepository = userRepository;
         this.matchRepository = matchRepository;
         this.notificationRepository = notificationRepository;
+        this.formRepository = formRepository;
     }
     public String register(RegisterUserDTO registerUserDTO) {
         User user = new User(registerUserDTO.name, registerUserDTO.email, registerUserDTO.password, registerUserDTO.city, registerUserDTO.playerAmount, registerUserDTO.number);
@@ -71,10 +76,10 @@ public class AuthService {
         return notificationRepository.findByToUser(user);
     }
 
-    public void createMatch(Long user1Id, Long user2Id) {
-        User user1 = userRepository.findById(user1Id)
+    public void createMatch(Long fromUserId, Long toUserId) {
+        User user1 = userRepository.findById(fromUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        User user2 = userRepository.findById(user2Id)
+        User user2 = userRepository.findById(toUserId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Check if there is already a pending notification
@@ -84,10 +89,7 @@ public class AuthService {
         }
 
         // Create the match and set its status to PENDING
-        Match match = new Match();
-        match.setFromUser(user1);
-        match.setToUser(user2);
-        match.setStatus(MatchStatus.PENDING);
+        Match match = new Match(user1, user2, MatchStatus.PENDING);
         Match savedMatch = matchRepository.save(match); // Save the match and generate its ID
 
         // Create a notification for user2 and associate it with the match
@@ -95,6 +97,7 @@ public class AuthService {
         notification.setFromUser(user1);
         notification.setToUser(user2);
         notification.setMessage("El usuario " + user1.getName() + " ha iniciado un match contigo");
+        notification.setResponded(false);
         notification.setMatch(savedMatch); // Set the saved match
         notificationRepository.save(notification); // Save the notification
     }
@@ -111,6 +114,7 @@ public class AuthService {
         notification.setFromUser(match.getToUser());
         notification.setToUser(match.getFromUser());
         notification.setMessage(match.getToUser().getName() + " ha aceptado tu match");
+        notification.setResponded(false);
         notification.setMatch(match);
         notificationRepository.save(notification); // Save the notification
 
@@ -119,6 +123,7 @@ public class AuthService {
         notification1.setFromUser(match.getFromUser());
         notification1.setToUser(match.getToUser());
         notification1.setMessage("Informar el resultado del partido contra " + notification1.getFromUser().getName());
+        notification.setResponded(false);
         notification1.setMatch(match);
         notificationRepository.save(notification1); // Save the notification
 
@@ -126,6 +131,7 @@ public class AuthService {
         notification2.setFromUser(match.getToUser());
         notification2.setToUser(match.getFromUser());
         notification2.setMessage("Informar el resultado del partido contra " + notification2.getFromUser().getName());
+        notification.setResponded(false);
         notification2.setMatch(match);
         notificationRepository.save(notification2); // Save the notification
     }
@@ -142,6 +148,7 @@ public class AuthService {
         notification.setFromUser(match.getToUser());
         notification.setToUser(match.getFromUser());
         notification.setMessage(match.getToUser().getName() + " ha rechazado tu match");
+        notification.setResponded(false);
         notification.setMatch(match);
         notificationRepository.save(notification); // Save the notification
     }
@@ -173,6 +180,40 @@ public class AuthService {
         }
 
         userRepository.save(user);
+    }
+
+    public void createForm(FormDTO formDTO) {
+        Notification notification = notificationRepository.findById(formDTO.fromNotificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+        User currentUser = notification.getToUser();
+        Match match = notification.getMatch();
+
+        if (currentUser == match.getFromUser() && match.getFromUserForm() == null) {
+            Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.punctuality, formDTO.fairPlay, formDTO.comment);
+            form.setUser(currentUser);
+            formRepository.save(form);
+            match.setFromUserForm(form);
+            matchRepository.save(match);
+            notification.setResponded(true);
+            notificationRepository.save(notification);
+        }
+        if (currentUser == match.getToUser() && match.getToUserForm() == null) {
+            Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.punctuality, formDTO.fairPlay, formDTO.comment);
+            form.setUser(currentUser);
+            formRepository.save(form);
+            match.setToUserForm(form);
+            matchRepository.save(match);
+            notification.setResponded(true);
+            notificationRepository.save(notification);
+        }
+    }
+
+    public void cancelMatch(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
+
+        notification.setResponded(true);
+        notificationRepository.save(notification);
     }
 }
 

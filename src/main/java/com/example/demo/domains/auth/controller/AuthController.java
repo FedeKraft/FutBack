@@ -85,7 +85,7 @@ public class AuthController {
     public ResponseEntity<String> createMatch(@RequestBody MatchDTO matchDTO, @RequestHeader("Authorization") String token) {
         try {
             jwtValidator.getID(token);
-            authService.createMatch(matchDTO.user1Id, matchDTO.user2Id);
+            authService.createMatch(matchDTO.fromUserId, matchDTO.toUserId);
             return new ResponseEntity<>("Match iniciado", HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -133,6 +133,29 @@ public class AuthController {
             Long userId = jwtValidator.getID(token);
             authService.toggleUserStatus(userId);
             return new ResponseEntity<>("User status toggled", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/auth/form")
+    public ResponseEntity<String> createForm(@RequestBody FormDTO formDTO, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.createForm(formDTO);
+            return new ResponseEntity<>("Formulario creado", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/api/notifications/responded")
+    public ResponseEntity<String> cancelMatch(@RequestBody Map<String, Long> body, @RequestHeader("Authorization") String token) {
+        try {
+            Long notificationId = body.get("notificationId");
+            jwtValidator.getID(token);
+            authService.cancelMatch(notificationId);
+            return new ResponseEntity<>("Match cancelado", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }

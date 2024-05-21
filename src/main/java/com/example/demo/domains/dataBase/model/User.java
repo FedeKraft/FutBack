@@ -2,6 +2,8 @@ package com.example.demo.domains.dataBase.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "users")
@@ -17,11 +19,11 @@ public class User {
     private String email;
     @Column(name = "password", nullable = false)
     private String password;
-    @Column
+    @Column(name = "city", nullable = false)
     private String city;
-    @Column
+    @Column(name = "player_amount", nullable = false)
     private String playerAmount;
-    @Column
+    @Column(name = "number", nullable = false)
     private String number;
     @Enumerated(EnumType.STRING)
     private UserStatus status;

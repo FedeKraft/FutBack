@@ -9,7 +9,6 @@ public class RegisterUserDTO {
     public String number;
 
 
-
     public RegisterUserDTO(String name, String password, String email, String city, String playerAmount, String number) {
         this.name = name;
         this.password = password;

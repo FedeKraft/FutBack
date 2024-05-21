@@ -15,7 +15,22 @@ public class Match {
     private User toUser;
     @Enumerated(EnumType.STRING)
     private MatchStatus status;
+    @OneToOne
+    private Form fromUserForm;
+    @OneToOne
+    private Form toUserForm;
 
+
+    public Match(User fromUser, User toUser, MatchStatus status) {
+        this.fromUser = fromUser;
+        this.toUser = toUser;
+        this.status = status;
+        this.fromUserForm = null;
+        this.toUserForm = null;
+    }
+
+    public Match() {
+    }
 
     public MatchStatus getStatus() {
         return status;
@@ -47,5 +62,21 @@ public class Match {
 
     public void setToUser(User toUser) {
         this.toUser = toUser;
+    }
+
+    public Form getFromUserForm() {
+        return fromUserForm;
+    }
+
+    public void setFromUserForm(Form fromUserForm) {
+        this.fromUserForm = fromUserForm;
+    }
+
+    public Form getToUserForm() {
+        return toUserForm;
+    }
+
+    public void setToUserForm(Form toUserForm) {
+        this.toUserForm = toUserForm;
     }
 }
