@@ -161,6 +161,17 @@ public class AuthController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
+
+    @GetMapping("/api/ranking")
+    public List<User> getRanking(@RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            return authService.getRanking();
+        } catch (Exception e) {
+            throw new RuntimeException("Unauthorized");
+        }
+    }
+
     @GetMapping("/auth/match-history")
     public ResponseEntity<List<Match>> getMatchHistory(@RequestHeader("Authorization") String token) {
         try {

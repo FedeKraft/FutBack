@@ -27,6 +27,8 @@ public class User {
     private String number;
     @Enumerated(EnumType.STRING)
     private UserStatus status;
+    @Column(name = "elo", nullable = false)
+    private int elo;
 
 
     public User(String name, String email, String password, String city, String playerAmount, String number) {
@@ -37,6 +39,7 @@ public class User {
         this.playerAmount = playerAmount;
         this.number = number;
         this.status = UserStatus.ACTIVE;
+        this.elo = 1000;
     }
 
     public User() {
@@ -101,4 +104,18 @@ public class User {
     public UserStatus getStatus() { return status; }
 
     public void setStatus(UserStatus status) { this.status = status; }
+
+    public int getElo() {
+        return elo;
+    }
+
+    public void setElo(int elo) {
+        this.elo = elo;
+    }
+
+    public int updateElo(int opponentElo, double result) {
+        int k = 20;
+        int newElo = (int) (elo + k * (result - 1 / (1 + Math.pow(10, (opponentElo - elo) / 400))));
+        return newElo;
+    }
 }
