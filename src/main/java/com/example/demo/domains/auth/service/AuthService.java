@@ -56,7 +56,7 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber(), user.getElo());
+        return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber(), user.getElo(), user.getStars());
     }
 
     public List<User> getAllUsers(Long userId) {
@@ -168,7 +168,7 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber(), user.getElo());
+        return new RegisterUserDTO(user.getName(), user.getPassword(), user.getEmail(), user.getCity(), user.getPlayerAmount(), user.getNumber(), user.getElo(), user.getStars());
     }
 
     public void toggleUserStatus(Long userId) {
@@ -193,7 +193,7 @@ public class AuthService {
         User user2 = match.getToUser();
 
         if (currentUser == user1 && match.getFromUserForm() == null) {
-            Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.punctuality, formDTO.fairPlay, formDTO.comment);
+            Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.fairPlay, formDTO.comment);
             form.setUser(currentUser);
             formRepository.save(form);
             match.setFromUserForm(form);
@@ -202,7 +202,7 @@ public class AuthService {
             notificationRepository.save(notification);
         }
         if (currentUser == user2 && match.getToUserForm() == null) {
-            Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.punctuality, formDTO.fairPlay, formDTO.comment);
+            Form form = new Form(formDTO.goalsInFavor, formDTO.goalsAgainst, formDTO.fairPlay, formDTO.comment);
             form.setUser(currentUser);
             formRepository.save(form);
             match.setToUserForm(form);
@@ -239,6 +239,18 @@ public class AuthService {
                 userRepository.save(user1);
                 userRepository.save(user2);
             }
+            List<Match> matches1 = matchRepository.findByFromUserId(user1.getId());
+            matches1.addAll(matchRepository.findByToUserId(user1.getId()));
+
+            List<Match> matches2 = matchRepository.findByFromUserId(user2.getId());
+            matches2.addAll(matchRepository.findByToUserId(user2.getId()));
+
+            int totalMatches1 = matches1.size();
+            int totalMatches2 = matches2.size();
+            user1.updateStars(form1.getFairPlay(), totalMatches1 + 1);
+            user2.updateStars(form2.getFairPlay(), totalMatches2 + 1);
+            userRepository.save(user1);
+            userRepository.save(user2);
         }
     }
 

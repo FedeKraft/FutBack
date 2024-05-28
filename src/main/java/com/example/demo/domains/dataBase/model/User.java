@@ -2,8 +2,6 @@ package com.example.demo.domains.dataBase.model;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-
 
 @Entity
 @Table(name = "users")
@@ -29,6 +27,8 @@ public class User {
     private UserStatus status;
     @Column(name = "elo", nullable = false)
     private int elo;
+    @Column(name = "stars", nullable = false)
+    private String stars;
 
 
     public User(String name, String email, String password, String city, String playerAmount, String number) {
@@ -40,6 +40,7 @@ public class User {
         this.number = number;
         this.status = UserStatus.ACTIVE;
         this.elo = 1000;
+        this.stars = "5";
     }
 
     public User() {
@@ -117,5 +118,20 @@ public class User {
         int k = 20;
         int newElo = (int) (elo + k * (result - 1 / (1 + Math.pow(10, (opponentElo - elo) / 400))));
         return newElo;
+    }
+
+    public String getStars() {
+        return stars;
+    }
+
+    public void setStars(String stars) {
+        this.stars = stars;
+    }
+
+    public void updateStars(String fairPlay, int totalMatches) {
+        int fairPlayInt = Integer.parseInt(fairPlay);
+        int starsInt = Integer.parseInt(stars);
+        int newStarsInt = ((starsInt * totalMatches) + fairPlayInt) / (totalMatches + 1);
+        setStars(String.valueOf(newStarsInt));
     }
 }
