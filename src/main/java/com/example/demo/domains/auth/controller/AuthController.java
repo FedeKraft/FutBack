@@ -31,7 +31,7 @@ public class AuthController {
 
     @PostMapping("/auth/register")
     public ResponseEntity<String> register(@RequestBody RegisterUserDTO registerUserDTO) {
-       return new ResponseEntity<>(authService.register(registerUserDTO), HttpStatus.CREATED);
+        return new ResponseEntity<>(authService.register(registerUserDTO), HttpStatus.CREATED);
     }
 
     @PostMapping("/auth/login")
@@ -173,13 +173,13 @@ public class AuthController {
     }
 
     @GetMapping("/auth/match-history")
-    public ResponseEntity<List<Match>> getMatchHistory(@RequestHeader("Authorization") String token) {
-        try {
-            Long userId = jwtValidator.getID(token);
-            List<Match> matchHistory = authService.getMatchHistory(userId);
-            return new ResponseEntity<>(matchHistory, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            public ResponseEntity<List<Match>> getMatchHistory(@RequestHeader("Authorization") String token) {
+                try {
+                    Long userId = jwtValidator.getID(token);
+                    List<Match> matchHistory = authService.getMatchHistory(userId);
+                    return new ResponseEntity<>(matchHistory, HttpStatus.OK);
+                } catch (Exception e) {
+                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+                }
+            }
         }
-    }
-}
