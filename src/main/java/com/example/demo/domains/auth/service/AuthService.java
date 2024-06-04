@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -277,4 +278,20 @@ public class AuthService {
             }
             return acceptedMatches;
         }
+
+    public List<String> getIncidents(Long id) {
+        List<Match> matches = matchRepository.findByFromUserId(id);
+        matches.addAll(matchRepository.findByToUserId(id));
+        List<String> incidents = new ArrayList<>();
+        for(Match match: matches){
+            if(match.getStatus() == MatchStatus.ACCEPTED && match.getFromUserForm() != null && match.getToUserForm() != null){
+                if (Objects.equals(match.getFromUser().getId(), id)) {
+                    incidents.add(match.getToUserForm().getComment());
+                } else {
+                    incidents.add(match.getFromUserForm().getComment());
+                }
+            }
+        }
+        return incidents;
     }
+}
