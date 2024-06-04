@@ -14,18 +14,15 @@ public class Form {
     private int goalsInFavor;
     @Column(name = "goals_against", nullable = false)
     private int goalsAgainst;
-    @Column(name = "punctuality", nullable = false)
-    private String punctuality;
     @Column(name = "fair_play", nullable = false)
     private String fairPlay;
     @Column(name = "comment")
     private String comment;
 
 
-    public Form(int goalsInFavor, int goalsAgainst, String punctuality, String fairPlay, String comment) {
+    public Form(int goalsInFavor, int goalsAgainst, String fairPlay, String comment) {
         this.goalsInFavor = goalsInFavor;
         this.goalsAgainst = goalsAgainst;
-        this.punctuality = punctuality;
         this.fairPlay = fairPlay;
         this.comment = comment;
     }
@@ -63,14 +60,6 @@ public class Form {
 
     public void setGoalsAgainst(int goalsAgainst) {
         this.goalsAgainst = goalsAgainst;
-    }
-
-    public String getPunctuality() {
-        return punctuality;
-    }
-
-    public void setPunctuality(String punctuality) {
-        this.punctuality = punctuality;
     }
 
     public String getFairPlay() {

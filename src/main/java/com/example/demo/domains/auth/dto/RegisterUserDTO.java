@@ -8,9 +8,10 @@ public class RegisterUserDTO {
     public String playerAmount;
     public String number;
     public int elo;
+    public String stars;
 
 
-    public RegisterUserDTO(String name, String password, String email, String city, String playerAmount, String number, int elo) {
+    public RegisterUserDTO(String name, String password, String email, String city, String playerAmount, String number, int elo, String stars) {
         this.name = name;
         this.password = password;
         this.email = email;
@@ -18,6 +19,7 @@ public class RegisterUserDTO {
         this.playerAmount = playerAmount;
         this.number = number;
         this.elo = elo;
+        this.stars = stars;
     }
 
 }
