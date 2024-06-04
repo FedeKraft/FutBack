@@ -182,4 +182,14 @@ public class AuthController {
                     return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
                 }
             }
+    @GetMapping("/auth/users/{id}/incidents")
+    public ResponseEntity<List<String>> getUserIncidents(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            List<String> incidents = authService.getIncidents(id);
+            return new ResponseEntity<>(incidents, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
+    }
+}
