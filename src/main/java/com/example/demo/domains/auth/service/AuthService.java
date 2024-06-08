@@ -10,13 +10,12 @@ import com.example.demo.domains.dataBase.repository.FormRepository;
 import com.example.demo.domains.dataBase.repository.MatchRepository;
 import com.example.demo.domains.dataBase.repository.NotificationRepository;
 import com.example.demo.domains.dataBase.repository.UserRepository;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -27,14 +26,17 @@ public class AuthService {
     private final MatchRepository matchRepository;
     private final NotificationRepository notificationRepository;
     private final FormRepository formRepository;
+    @Autowired
+    private final JavaMailSender mailSender;
 
 
     @Autowired
-    public AuthService(UserRepository userRepository, MatchRepository matchRepository, NotificationRepository notificationRepository, FormRepository formRepository) {
+    public AuthService(UserRepository userRepository, MatchRepository matchRepository, NotificationRepository notificationRepository, FormRepository formRepository, JavaMailSender mailSender) {
         this.userRepository = userRepository;
         this.matchRepository = matchRepository;
         this.notificationRepository = notificationRepository;
         this.formRepository = formRepository;
+        this.mailSender = mailSender;
     }
     public String register(RegisterUserDTO registerUserDTO) {
         User user = new User(registerUserDTO.name, registerUserDTO.email, registerUserDTO.password, registerUserDTO.city, registerUserDTO.playerAmount, registerUserDTO.number);
@@ -279,19 +281,52 @@ public class AuthService {
             return acceptedMatches;
         }
 
-    public List<String> getIncidents(Long id) {
+    public List<Form> getIncidents(Long id) {
         List<Match> matches = matchRepository.findByFromUserId(id);
         matches.addAll(matchRepository.findByToUserId(id));
-        List<String> incidents = new ArrayList<>();
+        List<Form> forms = new ArrayList<>();
         for(Match match: matches){
             if(match.getStatus() == MatchStatus.ACCEPTED && match.getFromUserForm() != null && match.getToUserForm() != null){
                 if (Objects.equals(match.getFromUser().getId(), id)) {
-                    incidents.add(match.getToUserForm().getComment());
+                    forms.add(match.getToUserForm());
                 } else {
-                    incidents.add(match.getFromUserForm().getComment());
+                    forms.add(match.getFromUserForm());
                 }
             }
         }
-        return incidents;
+        return forms;
+    }
+
+    public String forgotPassword(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        String resetToken = UUID.randomUUID().toString();
+        user.setResetToken(resetToken);
+        userRepository.save(user);
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("futmatchdevelopers@gmail.com");
+        message.setTo(email);
+        message.setSubject("Restablecimiento de contraseña");
+        message.setText("Para restablecer tu contraseña, haz clic en el siguiente enlace: "
+                + "http://localhost:3000/resetPassword?token=" + resetToken);
+        mailSender.send(message);
+
+        return resetToken;
+    }
+
+    public String resetPassword(String resetToken, String newPassword) {
+        User user = userRepository.findByResetToken(resetToken);
+        if (user == null) {
+            throw new RuntimeException("Invalid reset token");
+        }
+
+        // Actualizar la contraseña del usuario
+        user.setPassword(newPassword);
+        userRepository.save(user);
+
+        return "Password reset successfully";
     }
 }

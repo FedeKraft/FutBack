@@ -3,6 +3,7 @@ package com.example.demo.domains.auth.controller;
 import com.example.demo.domains.auth.dto.*;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
+import com.example.demo.domains.dataBase.model.Form;
 import com.example.demo.domains.dataBase.model.Match;
 import com.example.demo.domains.dataBase.model.Notification;
 import com.example.demo.domains.dataBase.model.User;
@@ -173,23 +174,47 @@ public class AuthController {
     }
 
     @GetMapping("/auth/match-history")
-            public ResponseEntity<List<Match>> getMatchHistory(@RequestHeader("Authorization") String token) {
-                try {
-                    Long userId = jwtValidator.getID(token);
-                    List<Match> matchHistory = authService.getMatchHistory(userId);
-                    return new ResponseEntity<>(matchHistory, HttpStatus.OK);
-                } catch (Exception e) {
-                    return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-                }
-            }
+    public ResponseEntity<List<Match>> getMatchHistory(@RequestHeader("Authorization") String token) {
+        try {
+            Long userId = jwtValidator.getID(token);
+            List<Match> matchHistory = authService.getMatchHistory(userId);
+            return new ResponseEntity<>(matchHistory, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
     @GetMapping("/auth/users/{id}/incidents")
-    public ResponseEntity<List<String>> getUserIncidents(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<List<Form>> getUserIncidents(@PathVariable Long id, @RequestHeader("Authorization") String token) {
         try {
             jwtValidator.getID(token);
-            List<String> incidents = authService.getIncidents(id);
+            List<Form> incidents = authService.getIncidents(id);
             return new ResponseEntity<>(incidents, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/auth/forgotPassword")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> body) {
+        try {
+            String email = body.get("email");
+            String resetToken = authService.forgotPassword(email);
+            return new ResponseEntity<>(resetToken, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/auth/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> body) {
+        try {
+            String resetToken = body.get("token");
+            String newPassword = body.get("password");
+            String message = authService.resetPassword(resetToken, newPassword);
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al intentar restablecer la contraseña", HttpStatus.BAD_REQUEST);
         }
     }
 }

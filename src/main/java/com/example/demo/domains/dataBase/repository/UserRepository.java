@@ -11,4 +11,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByCityAndStatus(String city, UserStatus status);
     List<User> findByPlayerAmountAndStatus(String playerAmount, UserStatus status);
     List<User> findAllByOrderByEloDesc();
+    User findByResetToken(String resetToken);
 }

@@ -29,6 +29,7 @@ public class User {
     private int elo;
     @Column(name = "stars", nullable = false)
     private String stars;
+    private String resetToken;
 
 
     public User(String name, String email, String password, String city, String playerAmount, String number) {
@@ -133,5 +134,13 @@ public class User {
         int starsInt = Integer.parseInt(stars);
         int newStarsInt = ((starsInt * totalMatches) + fairPlayInt) / (totalMatches + 1);
         setStars(String.valueOf(newStarsInt));
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
     }
 }
