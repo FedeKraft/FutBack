@@ -40,6 +40,11 @@ public class AuthController {
         return new ResponseEntity<>(authService.login(loginUserDTO), HttpStatus.OK);
     }
 
+    @PostMapping("/auth/googleLogin")
+    public ResponseEntity<?> googleLogin(@RequestBody LoginUserDTO loginUserDTO) {
+        return new ResponseEntity<>(authService.googleLogin(loginUserDTO), HttpStatus.OK);
+    }
+
     @GetMapping("/auth/profile")
     public ResponseEntity<RegisterUserDTO> getUserInfo(@RequestHeader("Authorization") String token) {
         try {

@@ -55,6 +55,14 @@ public class AuthService {
         return jwtGen.generateToken(user.getId(), "user");//cuando tenga admin se usa user.getRole() asi no son todos user
     }
 
+    public GoogleLoginResponse googleLogin(LoginUserDTO loginUserDTO) {
+        User user = userRepository.findByEmail(loginUserDTO.email);
+        if (user == null) {
+            return new GoogleLoginResponse(false,null);
+        }
+        return new GoogleLoginResponse(true, jwtGen.generateToken(user.getId(), "user"));
+    }
+
     public RegisterUserDTO getUserProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
