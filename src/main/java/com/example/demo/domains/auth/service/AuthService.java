@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -78,15 +79,55 @@ public class AuthService {
     public List<User> getAllUsers(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        List<User> users = userRepository.findByPlayerAmountAndStatus(user.getPlayerAmount(), UserStatus.ACTIVE); // Get all users with the same playerAmount that are active
-        users.removeIf(u -> !u.getCity().equals(user.getCity()) || u.getId().equals(userId)); // Remove the users not in the same city and the logged-in user from the list
-        if (!users.isEmpty()) return users;
-        else {
-            List<User> usersNearBy = userRepository.findByCityAndStatus(user.getCity(), UserStatus.ACTIVE); // Get all users in the same city that are active
-            usersNearBy.removeIf(u -> u.getId().equals(userId)); // Remove the logged-in user from the list
-            return usersNearBy;
-        }
+
+        // Get all active users
+        List<User> users = userRepository.findAll().stream()
+                .filter(u -> u.getStatus() == UserStatus.ACTIVE)
+                .collect(Collectors.toList());
+
+        // Remove the logged-in user from the list
+        users.removeIf(u -> u.getId().equals(userId));
+
+        // Filter users with the same city and playerAmount
+        List<User> usersCP = users.stream()
+                .filter(u -> u.getCity().equals(user.getCity()) && u.getPlayerAmount().equals(user.getPlayerAmount()))
+                .collect(Collectors.toList());
+
+        // Users not in usersCP
+        List<User> usersNCP = users.stream()
+                .filter(u -> !usersCP.contains(u))
+                .collect(Collectors.toList());
+
+        // Filter users with the same city
+        List<User> usersC = usersNCP.stream()
+                .filter(u -> u.getCity().equals(user.getCity()))
+                .collect(Collectors.toList());
+
+        // Users not in usersC
+        List<User> usersNC = usersNCP.stream()
+                .filter(u -> !usersC.contains(u))
+                .collect(Collectors.toList());
+
+        // Filter users with the same playerAmount
+        List<User> usersP = usersNC.stream()
+                .filter(u -> u.getPlayerAmount().equals(user.getPlayerAmount()))
+                .collect(Collectors.toList());
+
+        // Users not in usersP
+        List<User> usersN = usersNC.stream()
+                .filter(u -> !usersP.contains(u))
+                .collect(Collectors.toList());
+
+        // Combine all lists
+        List<User> result = new ArrayList<>();
+        result.addAll(usersCP);
+        result.addAll(usersC);
+        result.addAll(usersP);
+        result.addAll(usersN);
+
+        return result;
     }
+
 
     public List<Notification> getNotificationsByUserId(Long userId) {
         User user = userRepository.findById(userId)
@@ -231,34 +272,6 @@ public class AuthService {
         Form form2 = match.getToUserForm();
 
         if (form1 != null && form2 != null) {
-            if (form1.getGoalsInFavor() == form1.getGoalsAgainst() && form2.getGoalsAgainst() == form2.getGoalsInFavor()) {
-                int newElo1 = user1.updateElo(user2.getElo(), 0.5);
-                int newElo2 = user2.updateElo(user1.getElo(), 0.5);
-                user1.setElo(newElo1);
-                user2.setElo(newElo2);
-                userRepository.save(user1);
-                userRepository.save(user2);
-            }
-            if (form1.getGoalsInFavor() > form1.getGoalsAgainst() && form2.getGoalsInFavor() < form2.getGoalsAgainst()) {
-                int newElo1 = user1.updateElo(user2.getElo(), 1);
-                int newElo2 = user2.updateElo(user1.getElo(), 0);
-                user1.setElo(newElo1);
-                user2.setElo(newElo2);
-                userRepository.save(user1);
-                userRepository.save(user2);
-            }
-            if (form1.getGoalsInFavor() < form1.getGoalsAgainst() && form2.getGoalsInFavor() > form2.getGoalsAgainst()) {
-                int newElo1 = user1.updateElo(user2.getElo(), 0);
-                int newElo2 = user2.updateElo(user1.getElo(), 1);
-                user1.setElo(newElo1);
-                user2.setElo(newElo2);
-                userRepository.save(user1);
-                userRepository.save(user2);
-            }
-
-            Report report = new Report(user1, user2, form1, form2, "Resultados distintos.");
-            reportRepository.save(report);
-
             List<Match> matches1 = matchRepository.findByFromUserId(user1.getId());
             matches1.addAll(matchRepository.findByToUserId(user1.getId()));
             matches1.stream().filter(m -> m.getStatus() == MatchStatus.ACCEPTED).forEach(m -> {
@@ -294,8 +307,39 @@ public class AuthService {
                     }
                 }
             });
+
+            boolean isDraw = form1.getGoalsInFavor() == form1.getGoalsAgainst() && form2.getGoalsAgainst() == form2.getGoalsInFavor();
+            boolean user1Win = form1.getGoalsInFavor() > form1.getGoalsAgainst() && form2.getGoalsInFavor() < form2.getGoalsAgainst();
+            boolean user2Win = form1.getGoalsInFavor() < form1.getGoalsAgainst() && form2.getGoalsInFavor() > form2.getGoalsAgainst();
+
+            if (isDraw) {
+                int newElo1 = user1.updateElo(user2.getElo(), 0.5);
+                int newElo2 = user2.updateElo(user1.getElo(), 0.5);
+                user1.setElo(newElo1);
+                user2.setElo(newElo2);
+                userRepository.save(user1);
+                userRepository.save(user2);
+            } else if (user1Win) {
+                int newElo1 = user1.updateElo(user2.getElo(), 1);
+                int newElo2 = user2.updateElo(user1.getElo(), 0);
+                user1.setElo(newElo1);
+                user2.setElo(newElo2);
+                userRepository.save(user1);
+                userRepository.save(user2);
+            } else if (user2Win) {
+                int newElo1 = user1.updateElo(user2.getElo(), 0);
+                int newElo2 = user2.updateElo(user1.getElo(), 1);
+                user1.setElo(newElo1);
+                user2.setElo(newElo2);
+                userRepository.save(user1);
+                userRepository.save(user2);
+            } else {
+                Report report = new Report(user1, user2, form1, form2, "Resultados distintos.");
+                reportRepository.save(report);
+            }
         }
     }
+
 
     public void cancelMatch(Long notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
@@ -306,7 +350,9 @@ public class AuthService {
     }
 
     public List<User> getRanking() {
-        return userRepository.findAllByOrderByEloDesc();
+        return userRepository.findAllByOrderByEloDesc().stream()
+                .filter(user -> user.getStatus() == UserStatus.ACTIVE)
+                .collect(Collectors.toList());
     }
 
     public List<Match> getMatchHistory(Long userId) {
