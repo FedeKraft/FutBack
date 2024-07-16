@@ -30,9 +30,11 @@ public class User {
     @Column(name = "stars", nullable = false)
     private String stars;
     private String resetToken;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
 
-    public User(String name, String email, String password, String city, String playerAmount, String number) {
+    public User(String name, String email, String password, String city, String playerAmount, String number, UserRole role) {
         this.name = name;
         this.email = email;
         this.password = password;
@@ -42,6 +44,7 @@ public class User {
         this.status = UserStatus.ACTIVE;
         this.elo = 1000;
         this.stars = "5";
+        this.role = role;
     }
 
     public User() {
@@ -142,5 +145,13 @@ public class User {
 
     public void setResetToken(String resetToken) {
         this.resetToken = resetToken;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }

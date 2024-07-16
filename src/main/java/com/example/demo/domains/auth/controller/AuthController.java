@@ -3,10 +3,7 @@ package com.example.demo.domains.auth.controller;
 import com.example.demo.domains.auth.dto.*;
 import com.example.demo.domains.auth.service.AuthService;
 import com.example.demo.domains.auth.utils.JWTvalidator;
-import com.example.demo.domains.dataBase.model.Form;
-import com.example.demo.domains.dataBase.model.Match;
-import com.example.demo.domains.dataBase.model.Notification;
-import com.example.demo.domains.dataBase.model.User;
+import com.example.demo.domains.dataBase.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +34,13 @@ public class AuthController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<TokenDTO> login(@RequestBody LoginUserDTO loginUserDTO) {
+        if (authService.login(loginUserDTO) == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(authService.login(loginUserDTO), HttpStatus.OK);
     }
 
     @PostMapping("/auth/googleLogin")
     public ResponseEntity<?> googleLogin(@RequestBody LoginUserDTO loginUserDTO) {
+        if (authService.googleLogin(loginUserDTO) == null) return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         return new ResponseEntity<>(authService.googleLogin(loginUserDTO), HttpStatus.OK);
     }
 
@@ -220,6 +219,94 @@ public class AuthController {
             return new ResponseEntity<>(message, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error al intentar restablecer la contraseña", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/auth/report")
+    public ResponseEntity<String> createReport(@RequestBody ReportDTO reportDTO, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.createReport(reportDTO.fromUserId, reportDTO.toUserId, reportDTO.comment);
+            return new ResponseEntity<>("Reporte creado", HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/auth/reports")
+    public ResponseEntity<List<Report>> getAllReports(@RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            List<Report> reports = authService.getAllReports();
+            return new ResponseEntity<>(reports, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @DeleteMapping("/auth/deleteReport/{id}")
+    public ResponseEntity<String> deleteReport(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.deleteReport(id);
+            return new ResponseEntity<>("Reporte eliminado", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/auth/winReport/{id}")
+    public ResponseEntity<String> winReport(@PathVariable Long id, @RequestBody Map<String, Report> body, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.winReport(body.get("report"), id);
+            return new ResponseEntity<>("Reporte solucionado", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @DeleteMapping("/auth/deleteForms/{id}")
+    public ResponseEntity<String> drawReport(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.drawReport(id);
+            return new ResponseEntity<>("Reporte eliminado", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/auth/suspend/{id}")
+    public ResponseEntity<String> suspendUser(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.suspendUser(id);
+            return new ResponseEntity<>("Usuario suspendido", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @GetMapping("/auth/suspended")
+    public ResponseEntity<List<User>> getSuspendedUsers(@RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            List<User> suspendedUsers = authService.getSuspendedUsers();
+            return new ResponseEntity<>(suspendedUsers, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/auth/activate/{id}")
+    public ResponseEntity<String> activateUser(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        try {
+            jwtValidator.getID(token);
+            authService.activateUser(id);
+            return new ResponseEntity<>("Usuario activado", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
     }
 }
