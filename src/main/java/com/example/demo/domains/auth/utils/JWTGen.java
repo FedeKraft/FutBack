@@ -1,6 +1,7 @@
 package com.example.demo.domains.auth.utils;
 
 import com.example.demo.domains.auth.dto.TokenDTO;
+import com.example.demo.domains.dataBase.model.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -16,7 +17,7 @@ import java.util.Map;
 @Component
 public class JWTGen {
     static final SecretKey KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    public TokenDTO generateToken(Long id, String role) {
+    public TokenDTO generateToken(Long id, UserRole role) {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", String.valueOf(id));
